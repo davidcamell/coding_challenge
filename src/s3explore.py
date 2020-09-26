@@ -5,6 +5,7 @@ import logging
 import pandas as pd
 from datetime import datetime
 import os
+from enum import Enum
 
 APP_HOME = os.environ['S3X_PATH']
 
@@ -18,6 +19,14 @@ NEXT_CONTINUATION_TOKEN = 'NextContinuationToken'
 DEFAULT_PROFILE_NAME = 'default'
 DEFAULT_DATE_FORMAT = "%Y_%m_%d"
 
+
+class SIZE_FORMAT(Enum):
+    BYTES = 1
+    KB = 1024
+    MB = KB**2
+    GB = KB**3
+    TB = KB**4
+
 class AccessHandler():
 
     CREDENTIALS_PATH = 'data/.cred.json'
@@ -30,7 +39,6 @@ class AccessHandler():
     ):
         self.cred_storage = os.path.join(APP_HOME, cred_path)
         creds = self.fetch_creds(profile_name, self.cred_storage)
-        # self.session = self.initiate_s3(**creds)
         self._session = boto3.Session(**creds)
         self.s3_client = self._session.client('s3')
         self.s3_resource = self._session.resource('s3')
@@ -54,23 +62,6 @@ class AccessHandler():
         else:
             raise ValueError('Profile "{}" is not found.'.format(profile_name))
 
-    # @staticmethod
-    # def initiate_s3(
-    #         aws_profile=None,
-    #         aws_access_key_id=None,
-    #         aws_secret_access_key=None
-    # ):
-    #     if aws_profile is None:
-    #         session = boto3.Session(
-    #             aws_access_key_id=aws_access_key_id,
-    #             aws_secret_access_key=aws_secret_access_key
-    #         )
-    #     else:
-    #         session = boto3.Session(
-    #             aws_profile=aws_profile
-    #         )
-    #     return session
-
 
 class BucketInfo:
     def __init__(
@@ -92,20 +83,20 @@ class BucketInfo:
                 (self.most_recent_mod < last_modified):
             self.most_recent_mod = last_modified
 
-    # def to_dict(self):
-    #     return dict(
-    #         name=self.name,
-    #         created=self.created,
-    #         file_count=self.file_count,
-    #         cumulative_size=self.cumulative_size,
-    #         most_recent_mod=self.most_recent_mod
-    #     )
+    def get_display_size(self, size_format):
+        return display_size(self.cumulative_size, size_format)
+
+    @staticmethod
+    def display_size(file_size: int, size_format: SIZE_FORMAT):
+        return '{:.1f} {}'.format(file_size/size_format.value, size_format.name)
 
 
 class ResultHandler:
-    LOG_FILE_LOCATION = "data/result_logs"
+    LOG_FILE_LOCATION = 'data/result_logs'
+    LOG_TIMESTAMP_FORMAT = '%Y_%m%d_%H%M'
 
-    def __init__(self, date_format, sizeformat):
+    def __init__(self, date_format, sizeformat, profile_name):
+        self.profile = profile_name
         self._initated = datetime.now()
         self._date_format = date_format
         self._sizeformat = sizeformat
@@ -130,11 +121,18 @@ class ResultHandler:
         pd.DataFrame(self._results).to_csv(self._logfile_location())
 
     def _logfile_location(self):
-        return os.path.join(APP_HOME, self.LOG_FILE_LOCATION, '{}.csv'.format(self.version_name()))
+        return os.path.join(APP_HOME, self.LOG_FILE_LOCATION, self._profile, '{}.csv'.format(self.version_name()))
 
     @staticmethod
     def _console_display(bucket_info: BucketInfo):
         print(bucket_info.__dict__)
+        print('Bucket "{}", created {}\n Contains {} files, most recently updated {}\n Total size: {}'.format(
+            bucket_info.name,
+            bucket_info.created.strftime(self._date_format)),
+            bucket_info.file_count,
+            bucket_info.most_recent_mod.strftime(self._date_format),
+            bucket_info.display_size(self._sizeformat)
+        )
 
 
 def initiate_bucket_info(input_bucket):
@@ -195,6 +193,6 @@ if __name__ == '__main__':
     # TODO _maybe_ split out install config params to separate file
 
     access_handler = AccessHandler(profile_name=DEFAULT_PROFILE_NAME)
-    result_handler = ResultHandler(date_format=DEFAULT_DATE_FORMAT, sizeformat=None)
+    result_handler = ResultHandler(date_format=DEFAULT_DATE_FORMAT, sizeformat=SIZE_FORMAT.KB)
     for bucket in access_handler.s3_resource.buckets.all():
         result_handler.update_results(explore_bucket(bucket, access_handler))
