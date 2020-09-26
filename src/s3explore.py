@@ -83,29 +83,23 @@ class BucketInfo:
                 (self.most_recent_mod < last_modified):
             self.most_recent_mod = last_modified
 
-    def get_display_size(self, size_format):
-        return display_size(self.cumulative_size, size_format)
-
-    @staticmethod
-    def display_size(file_size: int, size_format: SIZE_FORMAT):
-        return '{:.1f} {}'.format(file_size/size_format.value, size_format.name)
 
 
 class ResultHandler:
     LOG_FILE_LOCATION = 'data/result_logs'
     LOG_TIMESTAMP_FORMAT = '%Y_%m%d_%H%M'
 
-    def __init__(self, date_format, sizeformat, profile_name):
+    def __init__(self, date_display_format, size_disaplay_format, profile_name):
         self.profile = profile_name
         self._initated = datetime.now()
-        self._date_format = date_format
-        self._sizeformat = sizeformat
+        self._date_display_format = date_format
+        self._size_disaplay_format = size_disaplay_format
         self._validate_location()
         self._results = []
         pass
 
     def version_name(self):
-        return self._initated.strftime(self._date_format)
+        return self._initated.strftime(self.LOG_TIMESTAMP_FORMAT)
 
     def update_results(self, bucket_info: BucketInfo):
         self._results.append(bucket_info)
@@ -124,14 +118,16 @@ class ResultHandler:
         return os.path.join(APP_HOME, self.LOG_FILE_LOCATION, self._profile, '{}.csv'.format(self.version_name()))
 
     @staticmethod
-    def _console_display(bucket_info: BucketInfo):
-        print(bucket_info.__dict__)
+    def display_size(file_size: int, size_format: SIZE_FORMAT):
+        return '{:.1f} {}'.format(file_size/size_format.value, size_format.name)
+
+    def _console_display(self, bucket_info: BucketInfo):
         print('Bucket "{}", created {}\n Contains {} files, most recently updated {}\n Total size: {}'.format(
             bucket_info.name,
-            bucket_info.created.strftime(self._date_format)),
+            bucket_info.created.strftime(self._date_display_format)),
             bucket_info.file_count,
-            bucket_info.most_recent_mod.strftime(self._date_format),
-            bucket_info.display_size(self._sizeformat)
+            bucket_info.most_recent_mod.strftime(self._date_display_format),
+            self.display_size(bucket_info.cumulative_size, self._size_disaplay_format)
         )
 
 
