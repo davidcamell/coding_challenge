@@ -109,7 +109,7 @@ class ResultHandler:
         self._initated = datetime.now()
         self._date_format = date_format
         self._sizeformat = sizeformat
-        self._logfile = self._logfile_location()
+        self._validate_location()
         self._results = []
         pass
 
@@ -121,11 +121,16 @@ class ResultHandler:
         self._console_display(bucket_info)
         self._update_logfile()
 
+    def _validate_location(self):
+        subdir, filename = os.path.split(self._logfile_location())
+        if not os.path.exists(subdir):
+            os.makedirs(subdir)
+
     def _update_logfile(self):
-        pd.DataFrame(self._results).to_csv(self._logfile)
+        pd.DataFrame(self._results).to_csv(self._logfile_location())
 
     def _logfile_location(self):
-        return os.path.join(APP_HOME, self.LOG_FILE_LOCATION, self.version_name(), '.csv')
+        return os.path.join(APP_HOME, self.LOG_FILE_LOCATION, '{}.csv'.format(self.version_name()))
 
     @staticmethod
     def _console_display(bucket_info: BucketInfo):
@@ -189,20 +194,7 @@ if __name__ == '__main__':
     # TODO _maybe_ add functionality to handle logging of bucket_info dicts
     # TODO _maybe_ split out install config params to separate file
 
-    # runtime_timestamp_start = datetime.now()
     access_handler = AccessHandler(profile_name=DEFAULT_PROFILE_NAME)
     result_handler = ResultHandler(date_format=DEFAULT_DATE_FORMAT, sizeformat=None)
-    # bucket_info_collector = []
     for bucket in access_handler.s3_resource.buckets.all():
         result_handler.update_results(explore_bucket(bucket, access_handler))
-
-        # result_handler.update_results(bucket_info)
-        # print(bucket_info.to_dict())
-        # bucket_info_collector.append(bucket_info)
-    # runtime_timestamp_completed = datetime.now()
-
-    # all_info = pd.DataFrame(bucket_info_collector)
-    # all_info['query_initiated'] = runtime_timestamp_start
-    # all_info['query_completed'] = runtime_timestamp_completed
-    # all_info['query_time_taken'] = runtime_timestamp_completed - runtime_timestamp_start
-    # all_info.to_csv('all_info_{}'.format(runtime_timestamp_start))
