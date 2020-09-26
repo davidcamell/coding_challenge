@@ -2,27 +2,34 @@ import boto3
 from typing import NamedTuple
 import json
 import logging
-# import pandas as pd
+import pandas as pd
 from datetime import datetime
+import os
+
+APP_HOME = os.environ['S3X_PATH']
 
 CONTENTS = 'Contents'
+KEY = 'Key'
 SIZE = 'Size'
 LAST_MODIFIED = 'LastModified'
 IS_TRUNCATED = 'IsTruncated'
 NEXT_CONTINUATION_TOKEN = 'NextContinuationToken'
 
+DEFAULT_PROFILE_NAME = 'default'
+DEFAULT_DATE_FORMAT = "%Y_%m_%d"
 
 class AccessHandler():
 
-    CREDENTIALS_PATH = 'cred.json'
-    DEFAULT = 'default'
+    CREDENTIALS_PATH = 'data/.cred.json'
     AWS_PROFILES = 'aws_profiles'
 
     def __init__(
             self,
-            profile_name=DEFAULT
+            profile_name,
+            cred_path=CREDENTIALS_PATH
     ):
-        creds = self.fetch_creds(profile_name)
+        self.cred_storage = os.path.join(APP_HOME, cred_path)
+        creds = self.fetch_creds(profile_name, self.cred_storage)
         # self.session = self.initiate_s3(**creds)
         self._session = boto3.Session(**creds)
         self.s3_client = self._session.client('s3')
@@ -31,7 +38,7 @@ class AccessHandler():
     @staticmethod
     def fetch_creds(
             profile_name,
-            cred_path=CREDENTIALS_PATH,
+            cred_path,
             profiles_key=AWS_PROFILES
     ):
         with open(cred_path, 'r') as fp:
@@ -65,42 +72,98 @@ class AccessHandler():
     #     return session
 
 
-def explore_bucket(bucket, s3_handler):
-    # logger = logging.getLogger(__name__)
+class BucketInfo:
+    def __init__(
+            self,
+            name: str,
+            created: datetime
+    ):
+        self.name = name
+        self.created = created
 
-    cumulative_size = 0
-    file_count = 0
-    most_recent_mod = None
+        self.file_count = 0
+        self.cumulative_size = 0
+        self.most_recent_mod = None
+
+    def add_file(self, size, last_modified):
+        self.file_count += 1
+        self.cumulative_size += size
+        if (self.most_recent_mod is None) or \
+                (self.most_recent_mod < last_modified):
+            self.most_recent_mod = last_modified
+
+    # def to_dict(self):
+    #     return dict(
+    #         name=self.name,
+    #         created=self.created,
+    #         file_count=self.file_count,
+    #         cumulative_size=self.cumulative_size,
+    #         most_recent_mod=self.most_recent_mod
+    #     )
+
+
+class ResultHandler:
+    LOG_FILE_LOCATION = "data/result_logs"
+
+    def __init__(self, date_format, sizeformat):
+        self._initated = datetime.now()
+        self._date_format = date_format
+        self._sizeformat = sizeformat
+        self._logfile = self._logfile_location()
+        self._results = []
+        pass
+
+    def version_name(self):
+        return self._initated.strftime(self._date_format)
+
+    def update_results(self, bucket_info: BucketInfo):
+        self._results.append(bucket_info)
+        self._console_display(bucket_info)
+        self._update_logfile()
+
+    def _update_logfile(self):
+        pd.DataFrame(self._results).to_csv(self._logfile)
+
+    def _logfile_location(self):
+        return os.path.join(APP_HOME, self.LOG_FILE_LOCATION, self.version_name(), '.csv')
+
+    @staticmethod
+    def _console_display(bucket_info: BucketInfo):
+        print(bucket_info.__dict__)
+
+
+def initiate_bucket_info(input_bucket):
+    # TODO refactor to 'from_bucket' function in BucketInfo?
+    return BucketInfo(
+        name=input_bucket.name,
+        created=input_bucket.creation_date
+    )
+
+
+def explore_bucket(target_bucket, s3_handler):
+    logger = logging.getLogger(__name__)
+
+    my_info = initiate_bucket_info(target_bucket)
+
     keep_fetching = True
     cont_token = None
-    search_params = dict(Bucket=bucket.name)
-
+    search_params = dict(Bucket=my_info.name)
     while keep_fetching:
         keep_fetching = False
-        if cont_token is None:
+        if cont_token is not None:
             search_params.update(dict(ContinuationToken=cont_token))
 
-        resp = s3_handler.s3_client.list_objects_v2(Bucket=bucket.name)
+        resp = s3_handler.s3_client.list_objects_v2(**search_params)
 
         if CONTENTS in resp:
             for obj in resp[CONTENTS]:
-                if not obj['Key'].endswith('/'):
-                    file_count += 1
-                    cumulative_size += obj[SIZE]
-                    if (most_recent_mod is None) or (most_recent_mod < obj[LAST_MODIFIED]):
-                        most_recent_mod = obj[LAST_MODIFIED]
+                if not obj[KEY].endswith('/'):
+                    my_info.add_file(obj[SIZE], obj[LAST_MODIFIED])
         if IS_TRUNCATED in resp:
             keep_fetching = resp[IS_TRUNCATED]
         if keep_fetching:
             cont_token = resp[NEXT_CONTINUATION_TOKEN]
-
-    return dict(
-        name=bucket.name,
-        created=bucket.creation_date,
-        file_count=file_count,
-        cumulative_size=cumulative_size,
-        most_recent_mod=most_recent_mod
-    )
+    return my_info
 
 
 if __name__ == '__main__':
@@ -124,15 +187,19 @@ if __name__ == '__main__':
     # TODO _maybe_ add support for using AWS cli profiles
     # TODO _maybe_ add skipContents to explore_bucket
     # TODO _maybe_ add functionality to handle logging of bucket_info dicts
+    # TODO _maybe_ split out install config params to separate file
 
-    runtime_timestamp_start = datetime.now()
-    access_handler = AccessHandler()
-    bucket_info_collector = []
+    # runtime_timestamp_start = datetime.now()
+    access_handler = AccessHandler(profile_name=DEFAULT_PROFILE_NAME)
+    result_handler = ResultHandler(date_format=DEFAULT_DATE_FORMAT, sizeformat=None)
+    # bucket_info_collector = []
     for bucket in access_handler.s3_resource.buckets.all():
-        bucket_info = explore_bucket(bucket, access_handler)
-        print(bucket_info)
-        bucket_info_collector.append(bucket_info)
-    runtime_timestamp_completed = datetime.now()
+        result_handler.update_results(explore_bucket(bucket, access_handler))
+
+        # result_handler.update_results(bucket_info)
+        # print(bucket_info.to_dict())
+        # bucket_info_collector.append(bucket_info)
+    # runtime_timestamp_completed = datetime.now()
 
     # all_info = pd.DataFrame(bucket_info_collector)
     # all_info['query_initiated'] = runtime_timestamp_start
