@@ -1,3 +1,5 @@
 boto3==1.9.204
 PyYAML==5.3.1
 pandas==0.25.3
+pytest==5.3.5
+typing==3.6.4

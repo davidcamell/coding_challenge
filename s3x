@@ -1,3 +1,0 @@
-#!/bin/bash
-
-python src/s3explore.py
