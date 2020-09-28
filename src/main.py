@@ -13,10 +13,6 @@ if __name__ == '__main__':
     # TODO what if network issue in middle of script run?
 
     # Code Hygene
-    # TODO what logging is necessary
-    # TODO refactor pass at end to break up better for testing
-    # TODO add MORE tests
-    # TODO include mock & conftest in tests, including mocking up s3 connection
     # TODO make sure comments & docstrings are included where needed
     # TODO complete README
 
@@ -26,26 +22,30 @@ if __name__ == '__main__':
     # TODO _maybe_ split out install config params to separate file
 
     size_display_mapping = dict(
-        b = ('byte', SizeFormat.BYTES),
-        kb = ('kilobyte', SizeFormat.KB),
-        mb = ('megabyte', SizeFormat.MB),
-        gb = ('gigabyte', SizeFormat.GB),
-        tb = ('terabyte', SizeFormat.TB),
+        b=('byte', SizeFormat.BYTES),
+        kb=('kilobyte', SizeFormat.KB),
+        mb=('megabyte', SizeFormat.MB),
+        gb=('gigabyte', SizeFormat.GB),
+        tb=('terabyte', SizeFormat.TB),
     )
 
     date_display_mapping = dict(
-        month_first = '%m/%d/%Y',
-        year_first = '%Y_%m_%d',
-        day_first = '%d/%m/%Y'
+        month_first='%m/%d/%Y',
+        year_first='%Y_%m_%d',
+        day_first='%d/%m/%Y'
     )
 
-    date_format_example_list = [datetime.now().strftime(date_display_mapping[dtf]) for dtf in date_display_mapping]
+    date_format_example_list = [datetime.now().strftime(
+        date_display_mapping[dtf]
+    ) for dtf in date_display_mapping]
+
     date_format_example_list[-1] = 'or {}'.format(date_format_example_list[-1])
     date_format_example = ', '.join(date_format_example_list)
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--profile', type=str, default=DEFAULT_PROFILE_NAME,
-                        help="Provide profile name (will use {} if not supplied).".format(DEFAULT_PROFILE_NAME))
+                        help="Provide profile name (will use {} if not supplied).".format(
+                            DEFAULT_PROFILE_NAME))
     parser.add_argument('--use_aws_cli_creds', default=False, action='store_true',
                         help="Use AWS profiles instead of credentials stored by this app.")
     parser.add_argument('--size_format', type=str, default=DEFAULT_SIZE_FORMAT,

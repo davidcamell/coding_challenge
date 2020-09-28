@@ -1,18 +1,16 @@
 import pytest
 from datetime import datetime
-
 from moto import mock_s3
 import boto3
-import os
-from datetime import datetime
-from results import SizeFormat, BucketInfo, ResultHandler, display_file_size, display_last_mod
-from access import explore_bucket, AccessHandler
+from results import SizeFormat, BucketInfo, ResultHandler
+from access import AccessHandler
 
 BUCKET1 = 'BUCKET1'
-CREATION_OF_BUCKET1 = datetime(2020,9,25)
+CREATION_OF_BUCKET1 = datetime(2020, 9, 25)
 DEFAULT_PROFILE = 'default'
 DEFAULT_DATE_FORMAT = '%Y_%m_%d'
 EXAMPLE_CREDS_FILE = 'installation_support/cred_EXAMPLE.json'
+
 
 @pytest.fixture
 def bucket_name():
@@ -32,8 +30,12 @@ def mock_bucket_info():
 @pytest.fixture  # (autouse=True)
 @mock_s3
 def s3_client():
+    """
+    :return: Pytest fixture is fake AWS creds of correct format.
+    By default, just pointing to original example included.
+    """
     sess = boto3.Session(
-        aws_access_key_id= "AKIAIOSFODNN7EXAMPLE",
+        aws_access_key_id="AKIAIOSFODNN7EXAMPLE",
         aws_secret_access_key="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
     )
     _s3_conn = sess.client('s3')

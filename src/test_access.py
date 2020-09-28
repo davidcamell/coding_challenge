@@ -25,7 +25,11 @@ def test_explore_bucket(mock_bucket_info, s3_client, bucket_name):
             with open(tf_path, 'w') as fw:
                 fw.truncate(n*1024)
 
-            s3_client.upload_file(tf_path, bucket_name, 'dir_a/file_{}.txt'.format(n))
+            s3_client.upload_file(
+                tf_path,
+                bucket_name,
+                'dir_a/file_{}.txt'.format(n)
+            )
 
     test_info = explore_bucket(mock_bucket_info, s3_client)
     assert test_info.name == bucket_name
@@ -35,20 +39,38 @@ def test_explore_bucket(mock_bucket_info, s3_client, bucket_name):
 
 def test_asset_handler_types(access_handler):
     """
-    Basic test that asset_handler is passing back expected object types.
-    :param access_handler: AccessHandler object to be tested; can just use pytest fixture.
+    Basic test that asset_handler is passing
+    back expected object types.
+    Can pass in parameters, or just use pytest fixtures.
+
+    :param access_handler: AccessHandler object to be tested.
     """
-    # Using type & str conversion here because isinstance does not work for these objects
-    assert str(type(access_handler.s3_client)) == "<class 'botocore.client.S3'>"
-    assert str(type(access_handler.s3_resource)) == "<class 'boto3.resources.factory.s3.ServiceResource'>"
+    # Using type & str conversion here because
+    # isinstance does not work for these objects
+    assert str(type(
+        access_handler.s3_client
+    )) == "<class 'botocore.client.S3'>"
+
+    assert str(type(
+        access_handler.s3_resource
+    )) == "<class 'boto3.resources.factory.s3.ServiceResource'>"
 
 
-def test_asset_handler_creds(access_handler, mock_s3_credentials, profile_name, example_creds_path):
+def test_asset_handler_creds(
+        access_handler,
+        mock_s3_credentials,
+        profile_name,
+        example_creds_path
+):
     """
+    Test that asset_handler is handling creds as expected.
+    Can pass in parameters, or just use pytest fixtures.
 
-    :param access_handler: AccessHandler object to be tested; can just use pytest fixture.
-    :param mock_s3_credentials: Expected output to compare against. Pytest fixture is fake AWS creds of correct format.
+    :param access_handler: AccessHandler object to be tested.
+    :param mock_s3_credentials: Expected output to compare against.
     :param profile_name: Specific set of credentials to be extracted.
-    :param example_creds_path: Path for cred file to be tested. By default, just pointing to original example included.
+    :param example_creds_path: Path for cred file to be tested.
     """
-    assert access_handler._fetch_creds(profile_name, example_creds_path) == mock_s3_credentials
+    assert access_handler._fetch_creds(
+        profile_name, example_creds_path
+    ) == mock_s3_credentials
