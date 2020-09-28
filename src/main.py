@@ -1,5 +1,5 @@
 from access import AccessHandler, explore_bucket
-from results import ResultHandler, SizeFormat
+from results import ResultHandler, SizeFormat, initiate_bucket_info
 import argparse
 from datetime import datetime
 
@@ -67,4 +67,5 @@ if __name__ == '__main__':
                                    size_display_format=use_size_format,
                                    profile_name=args.profile)
     for bucket in access_handler.s3_resource.buckets.all():
-        result_handler.update_results(explore_bucket(bucket, access_handler))
+        bucket_info = initiate_bucket_info(bucket)
+        result_handler.update_results(explore_bucket(bucket_info, access_handler.s3_client))

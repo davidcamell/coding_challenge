@@ -2,7 +2,6 @@ import os
 import json
 import boto3
 
-from results import BucketInfo
 
 APP_HOME = os.environ['S3X_PATH']
 
@@ -14,16 +13,7 @@ IS_TRUNCATED = 'IsTruncated'
 NEXT_CONTINUATION_TOKEN = 'NextContinuationToken'
 
 
-def initiate_bucket_info(input_bucket):
-    return BucketInfo(
-        name=input_bucket.name,
-        created=input_bucket.creation_date
-    )
-
-
-def explore_bucket(target_bucket, s3_handler):
-    my_info = initiate_bucket_info(target_bucket)
-
+def explore_bucket(my_info, s3_client):
     keep_fetching = True
     cont_token = None
     search_params = dict(Bucket=my_info.name)
@@ -32,7 +22,7 @@ def explore_bucket(target_bucket, s3_handler):
         if cont_token is not None:
             search_params.update(dict(ContinuationToken=cont_token))
 
-        resp = s3_handler.s3_client.list_objects_v2(**search_params)
+        resp = s3_client.list_objects_v2(**search_params)
 
         if CONTENTS in resp:
             for obj in resp[CONTENTS]:
@@ -59,14 +49,14 @@ class AccessHandler():
         if use_aws_cli_profiles:
             creds = dict(profile_name=profile_name)
         else:
-            creds = self.fetch_creds(profile_name,
+            creds = self._fetch_creds(profile_name,
                                      os.path.join(APP_HOME, cred_path))
         self._session = boto3.Session(**creds)
         self.s3_client = self._session.client('s3')
         self.s3_resource = self._session.resource('s3')
 
     @staticmethod
-    def fetch_creds(
+    def _fetch_creds(
             profile_name,
             cred_path,
             profiles_key=AWS_PROFILES

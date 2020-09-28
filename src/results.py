@@ -35,7 +35,7 @@ class BucketInfo:
             self.most_recent_mod = last_modified
 
 
-def display_size(file_size: int, size_format: SizeFormat):
+def display_file_size(file_size: int, size_format: SizeFormat):
     return '{:.1f} {}'.format(file_size/size_format.value, size_format.name)
 
 
@@ -89,7 +89,14 @@ class ResultHandler:
                 bucket_info.file_count,
                 display_last_mod(bucket_info.most_recent_mod,
                                       self._date_display_format),
-                display_size(bucket_info.cumulative_size,
+                display_file_size(bucket_info.cumulative_size,
                                   self._size_disaplay_format)
             )
         )
+
+
+def initiate_bucket_info(input_bucket):
+    return BucketInfo(
+        name=input_bucket.name,
+        created=input_bucket.creation_date
+    )
