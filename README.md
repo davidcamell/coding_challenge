@@ -99,3 +99,5 @@ Bucket "bucket_example_dev", created 05/13/2015
 
 ```
 
+## Testing
+Unit tests are also included. The script `run_tests.sh` can be used in a similar way to the main script above. It preps the system for running `pytest` and also passes through any arguments that a user may want to include.
