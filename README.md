@@ -22,13 +22,16 @@ Use the `setup.sh` script to prepare basic infrastructure needed for the program
 ## Credential Management
 There are two methods available to manage credentials:
 ### AWS Command Line Interface (AWS CLI)
-If you already have [AWS Command Line Interface](https://aws.amazon.com/cli/) installed on your system, you can use the profiles you already have set up there. Simply enter the name of a pre-existing profile in the `--profile` (or `-p`) argument of the script as described below under Usage, and explicitly request this method by also supplying the `--use_aws_cli_creds` (or `-a`) switch. Refer to the [AWS CLI documentation](https://docs.aws.amazon.com/cli/index.html) for more information.
+If you already have [AWS Command Line Interface](https://aws.amazon.com/cli/) installed on your system, you can use the profiles you already have set up there. Simply enter the name of a pre-existing profile in the `--profile` (or `-p`) argument of the script as described below under Usage, and explicitly request this method by also supplying the `--use_aws_cli_creds` (or `-a`) switch. Refer to the [AWS CLI documentation](https://docs.aws.amazon.com/cli/index.html) for more information. You can edit the credentials in the file directly (by default stored at `~/.aws/credentials`), or via the command:
+```
+aws configure
+```
 ### .cred.json
-If you do not already have AWS CLI installed, there is a lightweight way to supply and save your credentials. There is a file `.cred.json` that will be created in the `data` directory within the app directory when `setup.sh` is run. You can simply edit the doc, for example via command line (`pico` just used here for an example):
+If you do not already have AWS CLI installed, or if you simply want to keep credentials used for this program separate, there is a lightweight way to supply and save your credentials. There is a file `.cred.json` that will be created in the `data` directory within the app directory when `setup.sh` is run. You can simply edit the doc, for example via command line (`pico` just used here for an example):
 ```bash
 pico data/.cred.json
 ```
-The contents will be "fake" credentials as an example, which you would replace with your own.
+The initial contents will be "fake" credentials as an example, which you would replace with your own.
 ```buildoutcfg
 {
   "aws_profiles": {
