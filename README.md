@@ -6,21 +6,21 @@ All command line instructions below are given as if the user has navigated to th
 ## Installation
 
 ### Clone git repo
-The first step is to download the code from github. The most basic way is to use command line to clone the repo to your local system.
+The first step is to download the code from github. The most basic way is to use command line to clone the repo to your local system:
 ```
 git clone git@github.com:davidcamell/tagup_challenge.git {LOCAL_DESTINATION}
 ```
 
 ### Run setup.sh
 
-Use the `setup.sh` script to prepare basic infrastructure needed for the program to operate. This will create credential storage file locally, set up data directory for logging of results, and automate the [pip](https://pip.pypa.io/en/stable/) installation of needed packages as listed in 'requirements.txt'. 
+Use the `setup.sh` script to prepare basic infrastructure needed for the program to operate. This will create credential storage file locally, set up data directory for logging of results, and automate the [pip](https://pip.pypa.io/en/stable/) installation of needed packages as listed in 'requirements.txt':
 
 ```bash
 ./setup.sh
 ```
 
 ## Credential Management
-There are two methods available to manage credentials.
+There are two methods available to manage credentials:
 ### AWS Command Line Interface (AWS CLI)
 If you already have [AWS Command Line Interface](https://aws.amazon.com/cli/) installed on your system, you can use the profiles you already have set up there. Simply enter the name of a pre-existing profile in the `--profile` (or `-p`) argument of the script as described below under Usage, and explicitly request this method by also supplying the `--use_aws_cli_creds` (or `-a`) switch. Refer to the [AWS CLI documentation](https://docs.aws.amazon.com/cli/index.html) for more information.
 ### .cred.json
@@ -54,7 +54,7 @@ If you would like to access multiple data sources, you also have the option of a
 ```
 
 ## Usage
-The program is python script based, but there is a `bash` wrapper that helps make sure we are using the right virtual environment and paths (design decision was made to not permanantly alter the user's bash profile, etc.) To run the program, simply run
+The program is python script based, but there is a `bash` wrapper that helps make sure we are using the right virtual environment and paths (design decision was made to not permanently alter the user's bash profile, etc.). To run the program, simply run:
 ```
 ./s3explore.sh {see arguements below}
 ```
