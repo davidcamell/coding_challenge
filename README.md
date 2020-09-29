@@ -39,7 +39,7 @@ pico data/.cred.json
 
 ## Usage
 
-```python
+```bash
 usage: s3explore.py [-h] [-p PROFILE] [-s {bytes,kb,mb,gb,tb}]
                     [-d {month_first,year_first,day_first}] [-a] [-t] [-w]
 

@@ -47,9 +47,9 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--use_aws_cli_creds', default=False, action='store_true',
                         help="Use AWS profiles instead of credentials stored by this app.")
     parser.add_argument('-t', '--show_time_modified', default=False, action='store_true',
-                        help='Include the time of day for last modified file, for example "... 13:01:20".')
+                        help='Include the time of day for last modified file; for example "... 13:01:20".')
     parser.add_argument('-w', '--write_results_to_disk', default=False, action='store_true',
-                        help='After displaying in command line, also write to a log file in "data" directory.')
+                        help='After displaying in command line; also write to a log file in "data" directory.')
     args = parser.parse_args()
 
     # Resolve actual date format codes, and append time code
