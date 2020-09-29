@@ -58,7 +58,7 @@ The program is python script based, but there is a `bash` wrapper that helps mak
 ```
 ./s3explore.sh {see arguements below}
 ```
-You can access the `--help` information anytime:
+Program behavior, display formats, and credentials are detemined by the following script arguments, which you can also access from  `./s3explore.sh --help` anytime:
 ```bash
 usage: s3explore.py [-h] [-p PROFILE] [-s {bytes,kb,mb,gb,tb}]
                     [-d {month_first,year_first,day_first}] [-a] [-t] [-w]
