@@ -1,7 +1,6 @@
-import os
-import json
 import boto3
-
+import json
+import os
 
 APP_HOME = os.environ['S3X_PATH']
 

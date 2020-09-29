@@ -1,6 +1,6 @@
 import pytest
-from results import SizeFormat, display_file_size, display_last_mod
 from datetime import datetime
+from results import SizeFormat, display_file_size, display_last_mod
 
 
 @pytest.mark.parametrize("file_size, size_format, expected_output",

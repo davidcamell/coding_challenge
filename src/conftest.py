@@ -27,7 +27,7 @@ def mock_bucket_info():
     return BucketInfo(BUCKET1, CREATION_OF_BUCKET1)
 
 
-@pytest.fixture  # (autouse=True)
+@pytest.fixture
 @mock_s3
 def s3_client():
     """

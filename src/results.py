@@ -1,6 +1,6 @@
+import os
 import pandas as pd
 from datetime import datetime
-import os
 from enum import Enum
 
 APP_HOME = os.environ['S3X_PATH']
@@ -107,7 +107,11 @@ class ResultHandler:
     LOG_FILE_LOCATION = 'data/result_logs'
     LOG_TIMESTAMP_FORMAT = '%Y_%m%d_%H%M'
 
-    def __init__(self, date_display_format, size_display_format, profile_name):
+    def __init__(self,
+                 date_display_format: str,
+                 size_display_format: str,
+                 profile_name: str,
+                 write_results_to_disk: bool = True):
         """
         Establish how we will display results and information that
         will be used to structure the logging written out to the 'data' directory.
@@ -120,11 +124,14 @@ class ResultHandler:
         :param profile_name: When results are written out, this helps partition
         one set of credentials / data source from the next.
         :type profile_name: str
+        :param write_results_to_disk: Besides displaying, also write out to disk. Default: True.
+        :type write_results_to_disk: bool
         """
         self._profile = profile_name
         self._initated = datetime.now()
         self._date_display_format = date_display_format
         self._size_disaplay_format = size_display_format
+        self._write = write_results_to_disk
         self._validate_location()
         self._results = []
         pass
@@ -138,21 +145,25 @@ class ResultHandler:
 
     def update_results(self, bucket_info: BucketInfo):
         """
-        As each bucket is completed, pass the results here to keep track of them.
+        As each bucket is completed, pass the results here to keep track of them
+        and take appropriate action with notification / logging.
+
         :param bucket_info: Completed bucket analysis.
         :type bucket_info: BucketInfo
         """
-        self._results.append(bucket_info)
         print(self._console_display(bucket_info))
-        self._update_logfile()
+        if self._write:
+            self._results.append(bucket_info)
+            self._update_logfile()
 
     def _validate_location(self):
         """
         Handles making sure a place for writing out files exists.
         """
-        subdir, filename = os.path.split(self._logfile_location())
-        if not os.path.exists(subdir):
-            os.makedirs(subdir)
+        if self._write:
+            subdir, filename = os.path.split(self._logfile_location())
+            if not os.path.exists(subdir):
+                os.makedirs(subdir)
 
     def _update_logfile(self):
         """

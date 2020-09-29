@@ -1,7 +1,7 @@
-from moto import mock_s3
-from access import explore_bucket
-import tempfile
 import os
+import tempfile
+from access import explore_bucket
+from moto import mock_s3
 
 
 @mock_s3
