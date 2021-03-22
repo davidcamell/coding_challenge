@@ -7,20 +7,20 @@ This was a technical challenge I wrote code for.
 > The challenge is to develop a simple AWS S3 storage analysis tool.
 > 
 > The tool must be executable from the command line, and must return a list of all [S3](https://aws.amazon.com/documentation/s3/) buckets accessible to the user. > For each bucket, the tool should display the following information:
+> 
+> - Bucket name
+> - Creation date
+> - Number of files
+> - Aggregate size of files (an option should permit display in bytes, kB, MB, etc.)
+> - Last modified date of the most recent file
+> 
+> The tool must work on Linux and OSX, and the installation process must be clearly documented. Ideally, your tool won't require installation of any other tools > / libraries / frameworks to work.
 
-- Bucket name
-- Creation date
-- Number of files
-- Aggregate size of files (an option should permit display in bytes, kB, MB, etc.)
-- Last modified date of the most recent file
+> Your are free to use the programming language and the [SDK](https://aws.amazon.com/tools/) of your choice. You may assume the user has `bash`, `python3`, and > > `pip` installed on their system; any other executables and libraries must be included as part of the installation process. The installation process should be > > quick and easy, and the documentation must cover installation on both Ubuntu 18.04 and OSX.
+> 
+> Your project should be hosted on GitHub and be a standalone project
 
-The tool must work on Linux and OSX, and the installation process must be clearly documented. Ideally, your tool won't require installation of any other tools / libraries / frameworks to work.
-
-Your are free to use the programming language and the [SDK](https://aws.amazon.com/tools/) of your choice. You may assume the user has `bash`, `python3`, and `pip` installed on their system; any other executables and libraries must be included as part of the installation process. The installation process should be quick and easy, and the documentation must cover installation on both Ubuntu 18.04 and OSX.
-
-Your project should be hosted on GitHub and be a standalone project
-
-# coding_challenge
+# coding_challenge response
 For this challenge, I have created `S3Explore`, a simple command line based AWS S3 analysis tool written in python. 
 
 All command line instructions below are given as if the user has navigated to the git directory of the program. The program does require Python 3.
