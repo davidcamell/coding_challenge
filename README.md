@@ -1,6 +1,6 @@
 # Data Pipeline Technical Challenge
 
-This was a technical challenge I wrote code for.
+This was a technical challenge I once was asked to complete.
 
 ## Challenge Description
 
