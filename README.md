@@ -1,4 +1,4 @@
-# tagup_challenge
+# coding_challenge
 For this [challenge](https://github.com/tagup/challenges/tree/master/devops-coding), I have created `S3Explore`, a simple command line based AWS S3 analysis tool written in python. 
 
 All command line instructions below are given as if the user has navigated to the git directory of the program. The program does require Python 3.
