@@ -1,6 +1,6 @@
 # Data Pipeline Technical Challenge
 
-This was a technical challenge I once was asked to complete.
+This was a technical challenge I once was asked to complete. The description below came from the original challenge, all other content is original and completed by only me.
 
 ## Challenge Description
 
