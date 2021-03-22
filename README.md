@@ -30,7 +30,7 @@ All command line instructions below are given as if the user has navigated to th
 ### Clone git repo
 The first step is to download the code from github. The most basic way is to use command line to clone the repo to your local system:
 ```
-git clone git@github.com:davidcamell/tagup_challenge.git {LOCAL_DESTINATION}
+git clone git@github.com:davidcamell/coding_challenge.git {LOCAL_DESTINATION}
 ```
 
 ### Run setup.sh
